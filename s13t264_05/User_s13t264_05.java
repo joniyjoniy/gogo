@@ -52,7 +52,6 @@ public class User_s13t264_05 extends GogoCompSub {
     // 自分進行用評価配列
     values = new int[size][size];
 
-
     for (int i = 0; i < size; i++) {
       for (int j = 0; j < size; j++) {
         if (board.get_cell(i, j) != board.SPACE) {
@@ -89,7 +88,9 @@ public class User_s13t264_05 extends GogoCompSub {
     final int FORMONE      =    50; // 完1連
     final int FOUL         =    -1; // 禁じ手
 
-    // System.out.printf("\nGoing My Way\n\n");
+    final boolean DEBUG = false;
+
+    if (DEBUG) { System.out.printf("\nGoing My Way\n\n"); }
     // ---------------------------------------------
     // 自分の手を進める
     // ---------------------------------------------
@@ -129,7 +130,7 @@ public class User_s13t264_05 extends GogoCompSub {
               case 4: //4連
                 if (backLength == 0) {
                   if (values[i][j] < FORMFIVE) {
-                    // System.out.printf("4X\n");
+                    if (DEBUG) { System.out.printf("4X\n"); }
                     values[i][j] = FORMFIVE;
                   }
                 }
@@ -139,20 +140,20 @@ public class User_s13t264_05 extends GogoCompSub {
                   case 0: // 3連のみ
                     if (!formerEnemy && !backEnemy && !formerWall && !backWall) {
                       if (values[i][j] < FORMFOUR) {
-                        // System.out.printf("3X\n");
+                        if (DEBUG) { System.out.printf("3X\n"); }
                         values[i][j] = FORMFOUR;
                       }
                     } else if ( (formerEnemy || formerWall) && (backEnemy || backWall) ) {}
                     else {
                       if (values[i][j] < FORMPROFOUR) {
-                        // System.out.printf("Z3X or 3XZ or W3X or 3XW\n");
+                        if (DEBUG) { System.out.printf("Z3X or 3XZ or W3X or 3XW\n"); }
                         values[i][j] = FORMPROFOUR;
                       }
                     }
                     break;
                   case 1: // 3空1
                     if (values[i][j] < FORMFIVE) {
-                      // System.out.printf("3X1\n");
+                      if (DEBUG) { System.out.printf("3X1\n"); }
                       values[i][j] = FORMFIVE;
                     }
                     break;
@@ -165,25 +166,25 @@ public class User_s13t264_05 extends GogoCompSub {
                   case 0: // 2連のみ
                     if (!formerEnemy && !backEnemy && !formerWall && !backWall) {
                       if ( check_33(cell, mycolor, i, j, dx, dy, 2) ) {
-                        // System.out.printf("33\n");
+                        if (DEBUG) { System.out.printf("33\n"); }
                         values[i][j] = FOUL;
                       }
                       else if (values[i][j] < FORMTHREE) {
-                        // System.out.printf("2X\n");
+                        if (DEBUG) { System.out.printf("2X\n"); }
                         values[i][j] = FORMTHREE;
                       }
                     }
                     else if (formerEnemy) {
                       if (values[i][j] < PREVUP) {
                         // 石取り阻止
-                        // System.out.printf("Z2X\n");
+                        if (DEBUG) { System.out.printf("Z2X\n"); }
                         values[i][j] = PREVUP;
                       }
                     }
                     else if (formerWall && (backEnemy || backWall) ) {}
                     else {
                       if (values[i][j] < FORMPROTHREE) {
-                        // System.out.printf("W2X or 2XW or 2XZ\n");
+                        if (DEBUG) { System.out.printf("W2X or 2XW or 2XZ\n"); }
                         values[i][j] = FORMPROTHREE;
                       }
                     }
@@ -191,28 +192,28 @@ public class User_s13t264_05 extends GogoCompSub {
                   case 1: // 2空1
                     if (!formerEnemy && !backEnemy && !formerWall && !backWall) {
                       if (values[i][j] < FORMFOUR) {
-                        // System.out.printf("2X1\n");
+                        if (DEBUG) { System.out.printf("2X1\n"); }
                         values[i][j] = FORMFOUR;
                       }
                     }
                     else if (formerEnemy) {
                       if (values[i][j] < PREVUP) {
                         // 石取り阻止
-                        // System.out.printf("Z2X1\n");
+                        if (DEBUG) { System.out.printf("Z2X1\n"); }
                         values[i][j] = PREVUP;
                       }
                     }
                     else if ( formerWall && (backEnemy || backWall) ) {}
                     else {
                       if (values[i][j] < FORMPROFOUR) {
-                        // System.out.printf("2X1Z or 2X1W or W2X1\n");
+                        if (DEBUG) { System.out.printf("2X1Z or 2X1W or W2X1\n"); }
                         values[i][j] = FORMPROFOUR;
                       }
                     }
                     break;
                   case 2: // 2空2
                     if (values[i][j] < FORMFIVE) {
-                      // System.out.printf("2X2\n");
+                      if (DEBUG) { System.out.printf("2X2\n"); }
                       values[i][j] = FORMFIVE;
                     }
                     break;
@@ -225,30 +226,30 @@ public class User_s13t264_05 extends GogoCompSub {
                   case 0: // 1のみ
                     if (!formerEnemy && !backEnemy && !formerWall && !backWall) {
                       if (values[i][j] < FORMTWO) {
-                        // System.out.printf("1X\n");
+                        if (DEBUG) { System.out.printf("1X\n"); }
                         values[i][j] = FORMTWO;
                       }
                     } else if ( (formerWall || backWall) && (!formerEnemy && !backEnemy) ) {
                       if (values[i][j] < FORMPROTWO) {
-                        // System.out.printf("W1X or 1XW\n");
+                        if (DEBUG) { System.out.printf("W1X or 1XW\n"); }
                       }
                     }
                     break;
                   case 1: // 1空1
                     if (!formerEnemy && !backEnemy && !formerWall && !backWall) {
                       if ( check_33(cell, mycolor, i, j, dx, dy, 1) ) {
-                        // System.out.printf("33\n");
+                        if (DEBUG) { System.out.printf("33\n"); }
                         values[i][j] = FOUL;
                       }
                       if (values[i][j] < FORMTHREE) {
-                        // System.out.printf("1X1\n");
+                        if (DEBUG) { System.out.printf("1X1\n"); }
                         values[i][j] = FORMTHREE;
                       }
                     }
                     else if ( (formerEnemy || formerWall) && (backEnemy || backWall) ) {}
                     else {
                       if (values[i][j] < FORMPROTHREE) {
-                        // System.out.printf("Z1X1 or W1X1 or 1X1Z or 1X1W\n");
+                        if (DEBUG) { System.out.printf("Z1X1 or W1X1 or 1X1Z or 1X1W\n"); }
                         values[i][j] = FORMPROTHREE;
                       }
                     }
@@ -268,7 +269,7 @@ public class User_s13t264_05 extends GogoCompSub {
         // --------------------------------------------------------------------
         // 相手の手を崩す
         // --------------------------------------------------------------------
-        //// System.out.printf("\nInterference Enemy\n\n");
+        //System.out.printf("\nInterference Enemy\n\n");
 
         // 相手の手を崩す用の評価値
         final int INFIVE  =  9000; // 5連妨害
@@ -310,7 +311,7 @@ public class User_s13t264_05 extends GogoCompSub {
                 if (backLength == 0) {
                   // 5連阻止
                   if (in_values[i][j] < INFIVE) {
-                    // System.out.printf("4X\n");
+                    if (DEBUG) { System.out.printf("4X\n"); }
                     in_values[i][j] = INFIVE;
                   }
                 }
@@ -319,20 +320,20 @@ public class User_s13t264_05 extends GogoCompSub {
                 switch (backLength) {
 		              case 0: // 3連のみ
                     if (formerEnemy || backEnemy || formerWall || backWall) {
-                      // System.out.printf("A3X or 3XA or W3X or 3XW\n");
+                      if (DEBUG) { System.out.printf("A3X or 3XA or W3X or 3XW\n"); }
                       // なんとかなる
 			                break;
                     }
                     // 3連妨害
                     if (in_values[i][j] < INTHREE) {
-                      // System.out.printf("3X\n");
+                      if (DEBUG) { System.out.printf("3X\n"); }
                       in_values[i][j] = INTHREE;
                     }
                     break;
 		              case 1: // 3空1
                     // 5連阻止
 			              if (in_values[i][j] < INFIVE) {
-                      // System.out.printf("3X1\n");
+                      if (DEBUG) { System.out.printf("3X1\n"); }
                       in_values[i][j] = INFIVE;
                     }
                     break;
@@ -343,28 +344,28 @@ public class User_s13t264_05 extends GogoCompSub {
 		          case 2: // 2連
                 if (formerWall && backWall) {
                   // 無視
-                  // System.out.printf("W2XW\n");
+                  if (DEBUG) { System.out.printf("W2XW\n"); }
 			            break;
                 }
                 switch (backLength) {
 		              case 2: // 2空2
                     // 5連阻止
 			              if (in_values[i][j] < INFIVE) {
-                      // System.out.printf("2X2\n");
+                      if (DEBUG) { System.out.printf("2X2\n"); }
                       in_values[i][j] = INFIVE;}
                     break;
 		              case 1: // 2空1
                     if (!formerEnemy && !backEnemy) {
                       // ピンチ
                       if (in_values[i][j] < INFIVE) {
-                        // System.out.printf("2X1\n");
+                        if (DEBUG) { System.out.printf("2X1\n"); }
                         in_values[i][j] = INFIVE;
                       }
                     }
                     if (!formerEnemy && backEnemy) {
                       // 石取り前
 			                if (in_values[i][j] < INONE) {
-                        // System.out.printf("2X1Z\n");
+                        if (DEBUG) { System.out.printf("2X1Z\n"); }
                         in_values[i][j] = INONE;
                       }
 			                break;
@@ -372,7 +373,7 @@ public class User_s13t264_05 extends GogoCompSub {
                     if (formerEnemy) {
                       // 石取り
 			                if (in_values[i][j] < STONEUP) {
-                        // System.out.printf("Z2X1\n");
+                        if (DEBUG) { System.out.printf("Z2X1\n"); }
                         in_values[i][j] = STONEUP;
                       }
                     }
@@ -381,12 +382,12 @@ public class User_s13t264_05 extends GogoCompSub {
                     // 石取り前
                     if (formerEnemy) {
                       if (in_values[i][j] < STONEUP) {
-                        // System.out.printf("A2X\n");
+                        if (DEBUG) { System.out.printf("A2X\n"); }
                         in_values[i][j] = STONEUP;
                       }
                     }
 			              if (in_values[i][j] < INONE) {
-                      // System.out.printf("2X\n");
+                      if (DEBUG) { System.out.printf("2X\n"); }
                       in_values[i][j] = INONE;
                     }
 		              default:
@@ -398,13 +399,13 @@ public class User_s13t264_05 extends GogoCompSub {
 		              case 1: // 1空1
                     if (formerEnemy || backEnemy) {
                       // 気にしなくてもOK
-                      // System.out.printf("A1X1 or 1X1A\n");
+                      if (DEBUG) { System.out.printf("A1X1 or 1X1A\n"); }
                       break;
                     }
                     if (!formerEnemy && !backEnemy && !formerWall && !backWall) {
                       // 何も邪魔するものがなければ間に置く
                       if (in_values[i][j] < INONE) {
-                        // System.out.printf("1X1\n");
+                        if (DEBUG) { System.out.printf("1X1\n"); }
                         in_values[i][j] = INONE;
                       }
                     }
@@ -413,7 +414,7 @@ public class User_s13t264_05 extends GogoCompSub {
                     if (!formerEnemy && !backEnemy) {
                       // 石取り前
 			                if (in_values[i][j] < INONE) {
-                        // System.out.printf("1X\n");
+                        if (DEBUG) { System.out.printf("1X\n"); }
                         in_values[i][j] = INONE;
                       }
                     }
@@ -552,13 +553,13 @@ boolean check_wall(int i, int j, int dx, int dy, int len) {
   void show_value() {
     int i, j;
     for (i = 0; i < size; i++) {
-      // System.out.printf(" ");
+      System.out.printf(" ");
       for (j = 0; j < size; j++) {
-        // System.out.printf("%5d ", values[j][i]);
+        System.out.printf("%5d ", values[j][i]);
       }
-      // System.out.printf("\n");
+      System.out.printf("\n");
     }
-    // System.out.printf("\n");
+    System.out.printf("\n");
   }
 //----------------------------------------------------------------
 //  着手の決定

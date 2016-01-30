@@ -81,7 +81,12 @@ A2X   STONEUP
 1X1   INONE
 1X    INONE
 
-33対策を実装する
+# TODO
+DONE 33対策
+TODO 石取り
+TODO 32対策
+
+### 33対策を実装する
 33になるのは
 11と2 か 11と11 2と2 のとき？
 1.
@@ -104,3 +109,14 @@ XOAAX
 XAXXX
 XAXXX
 XXXXX
+
+### 石取り
+XAX
+XXX
+XZX
+XZX
+XAX
+のときに石取りを優先しない問題
+
+### 32対策
+3 どっか 2 の妨害
