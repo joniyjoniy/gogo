@@ -8,7 +8,7 @@ import sys.game.GameState;
 import sys.struct.GogoHand;
 import sys.user.GogoCompSub;
 
-public class User_s13t264_03 extends GogoCompSub {
+public class User_s13t264_04 extends GogoCompSub {
 
 //====================================================================
 //  コンストラクタ
@@ -36,6 +36,7 @@ public class User_s13t264_03 extends GogoCompSub {
     calc_values(theState, theBoard);
     // 先手後手、取石数、手数(序盤・中盤・終盤)で評価関数を変える
 
+    // 評価値の出力
     show_value();
 
     //--  着手の決定
@@ -70,23 +71,34 @@ public class User_s13t264_03 extends GogoCompSub {
     int [][] cell = board.get_cell_all();  // 盤面情報
     int mycolor;                  // 自分の石の色
     mycolor = role;
-    final int FORMFIVE     = 10000;
-    final int FORMFOUR     =  2000;
-    final int FORMPROFOUR  =   900;
-    final int FORMTHREE    =   500;
-    final int FORMPROTHREE =   450;
-    final int FORMTWO      =   100;
-    final int FORMONE      =    70;
-    final int FORMPROONE   =    50;
+    // 相手の妨害用評価配列
+    in_values = new int[size][size];
 
+    // 自分の手を進める用の評価値
+    final int FORMFIVE     = 10000; // 完5連
+    final int FORMFOUR     =  2000; // 完4連
+    final int FORMPROFOUR  =   900; // 仮4連
+    final int FORMTHREE    =   500; // 完3連
+    final int FORMPROTHREE =   450; // 仮3連
+    final int FORMTWO      =   100; // 完2連
+    final int FORMONE      =    70; // 完1連
+    final int FORMPROONE   =    50; // 仮1連
+
+    // 相手の手を崩す用の評価値
+    final int INFIVE;
+    final int STONEUP;
+    final int INFOUR;
+    final int INTHREE;
+    final int INONE;
+
+    // ---------------------------------------------
+    // 自分の手を進める
+    // ---------------------------------------------
     //--  各マスの評価値
     for (int i = 0; i < size; i++) {
       for (int j = 0; j < size; j++) {
         // 埋まっているマスはスルー
         if (values[i][j] == -2) { continue; }
-        // ---------------------------------------------
-        // 自分の手を進める
-        // ---------------------------------------------
         // TODO 33処理
         for ( int dx = -1; dx <= 1; dx++ ) {
           for ( int dy = -1; dy <= 1; dy++ ) {
@@ -96,85 +108,100 @@ public class User_s13t264_03 extends GogoCompSub {
             boolean backEnemy = false; // 後方の敵石
             boolean formerWall = false; // 前方の壁
             boolean backWall = false; // 後方の壁
+            // 禁じ手もしくは取られる場所はスルー
+            if (values[i][j] == -1) { continue; }
             if ( dx == 0 && dy == 0 ) { continue; }
+
+            // 前方の連長
             formerLength = check_run_dir(cell, mycolor, i, j, dx, dy);
+            // 後方の連長
             backLength = check_run_dir(cell, mycolor, i, j, dx*-1, dy*-1);
+            // 前方の連の先の敵
             formerEnemy = check_enemy_dir(cell, mycolor*-1, i, j, dx, dy, formerLength);
+            // 後方の連の先の敵
             backEnemy = check_enemy_dir(cell, mycolor*-1, i, j, dx, dy, backLength);
+            // 前方の連の先の壁
             formerWall = check_wall(i, j, dx, dy, formerLength);
+            // 後方の連の先の壁
             backWall = check_wall(i, j, dx*-1, dy*-1, backLength);
+
+            // 前方の連長で場合分け
             switch (formerLength) {
-              case 4:
+              case 4: //4連
                 if ( backLength == 0 ) {
-                 values[i][j] += FORMFIVE;
+                 if ( values[i][j] < FORMFIVE ) { values[i][j] = FORMFIVE; }
                 }
                 break;
-              case 3:
+              case 3: // 3連
                 switch (backLength) {
-                  case 0:
+                  case 0: // 3連のみ
                     if ( backEnemy && !formerEnemy ) {
-                      values[i][j] += FORMPROFOUR;
+                      if ( values[i][j] < FORMPROFOUR ) { values[i][j] = FORMPROFOUR; }
                       break;
                     }
                     if ( formerEnemy ) {
-                      values[i][j] += FORMPROFOUR;
+                      if ( values[i][j] < FORMPROFOUR ) { values[i][j] = FORMPROFOUR; }
                       break;
                     }
-                    values[i][j] += FORMFOUR;
+                    if ( values[i][j] < FORMFOUR ) { values[i][j] = FORMFOUR; }
                     break;
-                  case 1:
+                  case 1: // 3空1
+                  if ( values[i][j] < FORMFIVE ) { values[i][j] = FORMFIVE; }
                     values[i][j] += FORMFIVE;
                     break;
                   default:
                     break;
                 }
                 break;
-              case 2: // 2連時の処理
+              case 2: // 2連
                 if ( formerWall && backWall ) {
-                  values[i][j] = 0; break;
+                  values[i][j] = 0;
+                  break;
                 }
                 if ( formerEnemy || formerWall || backWall ) {
-                  values[i][j] += FORMPROTHREE; break;
+                  if ( values[i][j] < FORMPROTHREE ) { values[i][j] = FORMPROTHREE; }
+                  break;
                 }
                 switch (backLength) {
-                  case 2:
-                    values[i][j] += FORMFIVE;
+                  case 2: // 2空2
+                  if ( values[i][j] < FORMFIVE ) { values[i][j] = FORMFIVE; }
                     break;
-                  case 1:
+                  case 1: // 2空1
                     if (!formerEnemy && backEnemy) {
-                      values[i][j] += FORMPROFOUR;
+                      if ( values[i][j] < FORMPROFOUR ) { values[i][j] = FORMPROFOUR; }
                       break;
                     }
                     if (formerEnemy) {
-                      values[i][j] += FORMPROFOUR;
+                      if ( values[i][j] < FORMPROFOUR ) { values[i][j] = FORMPROFOUR; }
                     } else {
-                      values[i][j] += FORMFOUR;
+                      if ( values[i][j] < FORMFOUR ) { values[i][j] = FORMFOUR; }
                     }
                     break;
-                  case 0:
-                    values[i][j] += FORMTHREE;
+                  case 0: // 2のみ
+                  if ( values[i][j] < FORMTHREE ) { values[i][j] = FORMTHREE; }
                   default:
                     break;
                 }
                 break;
-              case 1:
+              case 1: // 1連
                 switch(backLength) {
-                  case 1:
+                  case 1: // 1空1
                     if (backEnemy && !formerEnemy) {
-                      values[i][j] += FORMPROTHREE;
+                      if ( values[i][j] < FORMPROTHREE ) { values[i][j] = FORMPROTHREE; }
                       break;
                     }
                     if (!backEnemy) {
                       if (formerEnemy) {
+                        if ( values[i][j] < FORMPROTHREE ) { values[i][j] = FORMPROTHREE; }
                         values[i][j] += FORMPROTHREE;
                       } else {
-                        values[i][j] += FORMTHREE;
+                        if ( values[i][j] < FORMTHREE ) { values[i][j] = FORMTHREE; }
                       }
                     }
                     break;
-                  case 0:
+                  case 0: // 1のみ
                     if (!formerEnemy && !backEnemy) {
-                      values[i][j] += FORMTWO;
+                      if ( values[i][j] < FORMTWO ) { values[i][j] = FORMTWO; }
                     }
                     break;
                   default:
@@ -185,15 +212,138 @@ public class User_s13t264_03 extends GogoCompSub {
                 break;
             }
           }
-        }
+        } // 方向ループ終わり
+        // --------------------------------------------------------------------
+
+        // ---------------------------------------------
+        // 相手の手を崩す
+        // ---------------------------------------------
+        for (int i = 0; i < size; i++) {
+          for (int j = 0; j < size; j++) {
+            // 埋まっているマスはスルー
+            if (values[i][j] == -2) { continue; }
+            // TODO 33処理
+            for ( int dx = -1; dx <= 1; dx++ ) {
+              for ( int dy = -1; dy <= 1; dy++ ) {
+                int formerLength = 0; //前方の連長
+                int backLength = 0; // 後方の連長
+                boolean formerEnemy = false; // 前方の自石
+                boolean backEnemy = false; // 後方の自石
+                boolean formerWall = false; // 前方の壁
+                boolean backWall = false; // 後方の壁
+                // 禁じ手もしくは取られる場所はスルー
+                if (values[i][j] == -1) { continue; }
+                if ( dx == 0 && dy == 0 ) { continue; }
+
+                // 前方の連長
+                formerLength = check_run_dir(cell, mycolor, i, j, dx, dy);
+                // 後方の連長
+                backLength = check_run_dir(cell, mycolor, i, j, dx*-1, dy*-1);
+                // 前方の連の先の敵
+                formerEnemy = check_enemy_dir(cell, mycolor*-1, i, j, dx, dy, formerLength);
+                // 後方の連の先の敵
+                backEnemy = check_enemy_dir(cell, mycolor*-1, i, j, dx, dy, backLength);
+                // 前方の連の先の壁
+                formerWall = check_wall(i, j, dx, dy, formerLength);
+                // 後方の連の先の壁
+                backWall = check_wall(i, j, dx*-1, dy*-1, backLength);
+
+                // 前方の連長で場合分け
+                switch (formerLength) {
+                  case 4: //4連
+                    if ( backLength == 0 ) {
+                     if ( values[i][j] < FORMFIVE ) { values[i][j] = FORMFIVE; }
+                    }
+                    break;
+                  case 3: // 3連
+                    switch (backLength) {
+                      case 0: // 3連のみ
+                        if ( backEnemy && !formerEnemy ) {
+                          if ( values[i][j] < FORMPROFOUR ) { values[i][j] = FORMPROFOUR; }
+                          break;
+                        }
+                        if ( formerEnemy ) {
+                          if ( values[i][j] < FORMPROFOUR ) { values[i][j] = FORMPROFOUR; }
+                          break;
+                        }
+                        if ( values[i][j] < FORMFOUR ) { values[i][j] = FORMFOUR; }
+                        break;
+                      case 1: // 3空1
+                      if ( values[i][j] < FORMFIVE ) { values[i][j] = FORMFIVE; }
+                        values[i][j] += FORMFIVE;
+                        break;
+                      default:
+                        break;
+                    }
+                    break;
+                  case 2: // 2連
+                    if ( formerWall && backWall ) {
+                      values[i][j] = 0;
+                      break;
+                    }
+                    if ( formerEnemy || formerWall || backWall ) {
+                      if ( values[i][j] < FORMPROTHREE ) { values[i][j] = FORMPROTHREE; }
+                      break;
+                    }
+                    switch (backLength) {
+                      case 2: // 2空2
+                      if ( values[i][j] < FORMFIVE ) { values[i][j] = FORMFIVE; }
+                        break;
+                      case 1: // 2空1
+                        if (!formerEnemy && backEnemy) {
+                          if ( values[i][j] < FORMPROFOUR ) { values[i][j] = FORMPROFOUR; }
+                          break;
+                        }
+                        if (formerEnemy) {
+                          if ( values[i][j] < FORMPROFOUR ) { values[i][j] = FORMPROFOUR; }
+                        } else {
+                          if ( values[i][j] < FORMFOUR ) { values[i][j] = FORMFOUR; }
+                        }
+                        break;
+                      case 0: // 2のみ
+                      if ( values[i][j] < FORMTHREE ) { values[i][j] = FORMTHREE; }
+                      default:
+                        break;
+                    }
+                    break;
+                  case 1: // 1連
+                    switch(backLength) {
+                      case 1: // 1空1
+                        if (backEnemy && !formerEnemy) {
+                          if ( values[i][j] < FORMPROTHREE ) { values[i][j] = FORMPROTHREE; }
+                          break;
+                        }
+                        if (!backEnemy) {
+                          if (formerEnemy) {
+                            if ( values[i][j] < FORMPROTHREE ) { values[i][j] = FORMPROTHREE; }
+                            values[i][j] += FORMPROTHREE;
+                          } else {
+                            if ( values[i][j] < FORMTHREE ) { values[i][j] = FORMTHREE; }
+                          }
+                        }
+                        break;
+                      case 0: // 1のみ
+                        if (!formerEnemy && !backEnemy) {
+                          if ( values[i][j] < FORMTWO ) { values[i][j] = FORMTWO; }
+                        }
+                        break;
+                      default:
+                        break;
+                    }
+                    break;
+                  default:
+                    break;
+                }
+              }
+            } // 方向ループ終わり
+        // -------------------------------------
 
         // ランダム
-        /*
         if (values[i][j] == 0) {
           int aaa = (int) Math.round(Math.random() * 10);
           if (values[i][j] < aaa) { values[i][j] += aaa; }
         }
-        */
+
       }
     }
   }
